@@ -1,0 +1,54 @@
+{
+  "title": "Watch BLE Presence",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Watch BLE Presence",
+        "description": "Create BLE presence devices from the Private BLE Device entries already configured in Home Assistant."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Only one Watch BLE Presence instance can be configured.",
+      "no_private_ble_devices": "No Private BLE Device entries with an IRK were found."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Watch BLE Presence settings",
+        "description": "The integration only reads Home Assistant's Bluetooth cache; it does not start additional radio scans.",
+        "data": {
+          "update_interval": "Update interval (seconds)",
+          "presence_timeout": "BLE presence timeout (seconds)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "detected": {
+        "name": "BLE detected"
+      }
+    },
+    "sensor": {
+      "last_seen": {
+        "name": "Last BLE detection"
+      },
+      "age": {
+        "name": "Last detection age"
+      },
+      "rssi": {
+        "name": "RSSI"
+      },
+      "scanner": {
+        "name": "Bluetooth scanner"
+      },
+      "address": {
+        "name": "BLE address"
+      },
+      "bluetooth_name": {
+        "name": "Bluetooth name"
+      }
+    }
+  }
+}
