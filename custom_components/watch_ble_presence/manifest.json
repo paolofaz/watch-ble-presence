@@ -1,12 +1,12 @@
 {
   "domain": "watch_ble_presence",
   "name": "Watch BLE Presence",
-  "dependencies": ["bluetooth"],
   "version": "1.0.0",
   "documentation": "https://github.com/paolofaz/watch-ble-presence",
   "issue_tracker": "https://github.com/paolofaz/watch-ble-presence/issues",
   "dependencies": [
-    "private_ble_device"
+    "private_ble_device",
+    "bluetooth"
   ],
   "codeowners": [
     "@paolofaz"
