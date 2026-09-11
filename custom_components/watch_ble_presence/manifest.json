@@ -1,4 +1,6 @@
 {
+  "domain": "watch_ble_presence",
+  "name": "Watch BLE Presence",
   "codeowners": [
     "@paolofaz"
   ],  
@@ -8,11 +10,11 @@
     "bluetooth"
   ],  
   "documentation": "https://github.com/paolofaz/watch-ble-presence",  
-  "domain": "watch_ble_presence",
+
   "integration_type": "hub",
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/paolofaz/watch-ble-presence/issues",  
-  "name": "Watch BLE Presence",
+
   "single_config_entry": true,
   "version": "1.0.0"
 }
