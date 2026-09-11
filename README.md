@@ -99,6 +99,17 @@ For security-sensitive presence logic, BLE presence is best treated as one signa
 
 This integration currently imports internal coordinator functionality from Home Assistant's built-in `private_ble_device` integration. That API is not guaranteed to remain stable across future Home Assistant releases. A Home Assistant update may therefore require a corresponding Watch BLE Presence update.
 
+
+# 🍺 Support the Project
+
+If you found this project useful and want to support my work, you can offer me a beer:
+
+[![Buy Me a Beer](https://img.shields.io/badge/Buy%20Me%20a%20Beer-0070ba?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/PaoloFazari)
+
+
+## Contributions
+Contributions are welcome
+
 ## Trademarks
 
 Apple and Apple Watch are trademarks of Apple Inc. This project is independent and is not affiliated with or endorsed by Apple Inc. or Home Assistant.
