@@ -1,21 +1,34 @@
-# Development branch: standalone IRKs
+# Beta-test migration for the four existing Watches
 
-**Do not install this branch on your active Home Assistant yet.** The existing Watch BLE Presence config has no IRKs; after upgrading its sensors will be unavailable until each IRK is added again.
+The beta test code is on GitHub branch `test`, with version `1.1.0b1`.
 
-The refactor reads only IRKs stored in its own configuration, not from Private BLE Device. It does not register an active Bluetooth listener or initiate new scans; it reads Home Assistant's existing shared Bluetooth advertisement cache. Passive/active mode remains under the existing Bluetooth adapters and proxies' configuration.
+**Keep your existing Watch BLE Presence configuration entry. Do not delete it before upgrading.** Reusing a name alone does not preserve entity IDs. The migrated configuration selects the **old entity identifier** for each Watch. The sensor and entity classes remain unchanged from `main`.
 
-## Migration checklist
+## Before starting
 
-1. Save a Home Assistant backup and record the four Watch BLE Presence entity IDs.
-2. Keep Private BLE Device and your Bluetooth proxies enabled while testing.
-3. Open Watch BLE Presence > Configure > Add or migrate a Watch.
-4. Enter the name and IRK of each Watch. Select the correct existing Watch BLE Presence entity from the selection field to preserve its registry identifier.
-5. Repeat for the remaining Watches, then confirm old sensor entity IDs and automations are still intact.
-6. Compare entry/exit transitions, timeouts, rotating addresses, scanners and RSSI over several days.
-7. Consider removing Private BLE Device **only after** the independent detection has been confirmed.
+- Make and verify a complete Home Assistant backup. Reverting Python alone will NOT restore an already migrated configuration entry.
+- Keep all four Private BLE Device entries enabled until the new integration is configured and successfully tested.
+- Have all four IRKs ready **privately**.
+- Record the four old `binary_sensor` IDs and any important automations.
+- Choose a maintenance window: Watch BLE Presence entities may be temporarily unavailable after upgrade and until all four keys are re-entered.
 
-Do not post real IRKs publicly, including in GitHub issues or PR screenshots. The key remains in your Home Assistant config entry.
+## Upgrade the original integration (do not delete it)
 
-## Limitations
+1. Install beta `v1.1.0b1` from GitHub release or copy **only** the folder `custom_components/watch_ble_presence/` from branch `test` over the matching existing folder.
+2. Restart Home Assistant. The old v1 configuration becomes v2 without borrowing another integration's IRKs. The device list starts empty until your IRKs are configured.
+3. Open Settings → Devices & services → **Watch BLE Presence** → **Configure** → **Add or migrate a Watch**.
+4. Paste the IRK, set the name, then **choose the matching old Watch BLE Presence binary sensor from the drop-down** by its full `binary_sensor.xxx` entity ID. Do not select `New watch` for an existing Watch.
+5. Repeat for the other three Watches. Verify presence, last seen, age, RSSI, scanner, address and Bluetooth name. Confirm all four original entity IDs still match and that automations are correctly attached.
+6. Leave Private BLE Device enabled initially; verify entry and exit events.
 
-This is still work in progress. Unit tests do not establish real scanner/proxy performance, nor does preserving unique IDs guarantee the entire migration will be seamless. No release should be published until testing on a real Home Assistant instance passes.
+## Independence test
+
+When all four Watch BLE Presence sensors behave correctly, **disable**, do not delete, the four Private BLE Device entries under Settings → Devices & services. **Do not turn off Bluetooth or your ESPHome Bluetooth proxies.** Restart Home Assistant and test over several days.
+
+The new integration only reads Home Assistant's existing Bluetooth advertisement cache and **does not register a BLE listener or request active scanning**. Adapters/proxies are controlled independently by Home Assistant and their own firmware/settings.
+
+## Rollback
+
+If sensor detection fails, re-enable Private BLE Device first. If the test version is not usable, restore the full pre-upgrade Home Assistant backup (both config entries and integration files); do not rely on changing `main`, `legacy`, or `test` to revert the stored v2 config entry.
+
+**Do not delete either integration until you're satisfied with the full independence test.**
