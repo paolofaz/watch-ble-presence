@@ -2,7 +2,7 @@
 
 **Do not install this branch on your active Home Assistant yet.** The existing Watch BLE Presence config has no IRKs; after upgrading its sensors will be unavailable until each IRK is added again.
 
-The refactor reads only IRKs stored in its own configuration, not from Private BLE Device. It registers its own active Bluetooth listener and polls Home Assistant's existing advertisement cache.
+The refactor reads only IRKs stored in its own configuration, not from Private BLE Device. It does not register an active Bluetooth listener or initiate new scans; it reads Home Assistant's existing shared Bluetooth advertisement cache. Passive/active mode remains under the existing Bluetooth adapters and proxies' configuration.
 
 ## Migration checklist
 
