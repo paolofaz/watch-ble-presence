@@ -21,7 +21,12 @@
   "options": {
     "step": {
       "init": {
-        "title": "Gestisci Watch BLE Presence"
+        "title": "Gestisci Watch BLE Presence",
+        "menu_options": {
+          "settings": "Impostazioni presenza",
+          "add_watch": "Aggiungi o migra un Watch",
+          "remove_watch": "Rimuovi un Watch"
+        }
       },
       "settings": {
         "title": "Impostazioni presenza",
