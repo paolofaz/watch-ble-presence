@@ -41,6 +41,9 @@ def load_coordinator(read_advertisement):
     update = types.ModuleType("homeassistant.helpers.update_coordinator")
 
     class DataUpdateCoordinator:
+        def __class_getitem__(cls, item):
+            return cls
+
         def __init__(self, hass, logger, **kwargs):
             self.hass = hass
 
