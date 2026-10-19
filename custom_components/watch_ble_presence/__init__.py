@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from homeassistant.components import bluetooth
-from homeassistant.components.bluetooth.match import BluetoothCallbackMatcher
-from homeassistant.config_entries import ConfigEntry
 import logging
+
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
 from .const import CONF_WATCHES, PLATFORMS
@@ -42,15 +41,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         for watch in entry.data.get(CONF_WATCHES, [])
     ]
 
-    # Match the official integration's scanning mode without importing its internals.
-    if watches:
-        unsubscribe = bluetooth.async_register_callback(
-            hass,
-            lambda _info, _change: None,
-            BluetoothCallbackMatcher(connectable=False),
-            bluetooth.BluetoothScanningMode.ACTIVE,
-        )
-        entry.async_on_unload(unsubscribe)
+    # The coordinator only reads the shared Home Assistant Bluetooth cache.
+    # No extra BLE listener or active scan is necessary.
 
     coordinator = WatchBleCoordinator(hass, entry, watches)
     await coordinator.async_config_entry_first_refresh()
@@ -60,7 +52,5 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload entities and release the Bluetooth listener."""
-    unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-    # Home Assistant calls entry.async_on_unload callbacks itself after unloading.
-    return unloaded
+    """Unload Watch BLE Presence entities."""
+    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
