@@ -1,20 +1,13 @@
 {
   "domain": "watch_ble_presence",
   "name": "Watch BLE Presence",
-  "codeowners": [
-    "@paolofaz"
-  ],  
+  "codeowners": ["@paolofaz"],
   "config_flow": true,
-  "dependencies": [
-    "private_ble_device",
-    "bluetooth"
-  ],  
-  "documentation": "https://github.com/paolofaz/watch-ble-presence",  
-
+  "dependencies": ["bluetooth"],
+  "documentation": "https://github.com/paolofaz/watch-ble-presence",
   "integration_type": "hub",
   "iot_class": "calculated",
-  "issue_tracker": "https://github.com/paolofaz/watch-ble-presence/issues",  
-
+  "issue_tracker": "https://github.com/paolofaz/watch-ble-presence/issues",
   "single_config_entry": true,
   "version": "1.0.0"
 }
