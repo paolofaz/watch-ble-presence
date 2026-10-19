@@ -12,7 +12,8 @@
       }
     },
     "error": {
-      "irk_not_valid": "Invalid IRK. Enter 32 hex digits or a supported base64 IRK."
+      "irk_not_valid": "Invalid IRK. Enter 32 hex digits or a supported base64 IRK.",
+      "name_required": "Enter a Watch name."
     },
     "abort": {
       "single_instance_allowed": "Only one Watch BLE Presence instance can be configured."
@@ -24,7 +25,7 @@
         "title": "Manage Watch BLE Presence",
         "menu_options": {
           "settings": "Presence settings",
-          "add_watch": "Add or migrate a Watch",
+          "add_watch": "Add a Watch",
           "remove_watch": "Remove a Watch"
         }
       },
@@ -36,12 +37,11 @@
         }
       },
       "add_watch": {
-        "title": "Add or migrate a Watch",
-        "description": "To preserve an existing entity ID, select its previous Watch BLE Presence device in the drop-down. Otherwise choose New watch.",
+        "title": "Add a Watch",
+        "description": "Enter the new Watch's name and IRK.",
         "data": {
           "name": "Watch name",
-          "irk": "IRK (hex or base64)",
-          "existing_watch": "Existing Watch BLE Presence entity"
+          "irk": "IRK (hex or base64)"
         }
       },
       "remove_watch": {
