@@ -97,7 +97,7 @@ class PresenceTimeoutTests(unittest.IsolatedAsyncioTestCase):
         }
         module = load_coordinator(lambda hass, irk: advertisements.get(irk))
         watches = [
-            module.WatchDefinition(private_entry_id=str(i), irk_hex="", irk=str(i).encode(), name="Watch " + str(i))
+            module.WatchDefinition(watch_id=str(i), irk=str(i).encode(), name="Watch " + str(i))
             for i in range(1, 5)
         ]
         entry = types.SimpleNamespace(options={"presence_timeout": 300, "update_interval": 60})
