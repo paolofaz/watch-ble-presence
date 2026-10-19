@@ -23,8 +23,7 @@ _LOGGER = logging.getLogger(__name__)
 class WatchDefinition:
     """Configuration of one watch."""
 
-    private_entry_id: str
-    irk_hex: str
+    watch_id: str
     irk: bytes
     name: str
 
@@ -73,7 +72,7 @@ class WatchBleCoordinator(DataUpdateCoordinator[dict[str, WatchState]]):
         new_states: dict[str, WatchState] = {}
 
         for watch in self.watches:
-            previous = self._states.get(watch.private_entry_id)
+            previous = self._states.get(watch.watch_id)
             service_info = async_last_service_info(self.hass, watch.irk)
             if service_info is not None:
                 age_seconds = max(0.0, now_monotonic - service_info.time)
@@ -100,7 +99,7 @@ class WatchBleCoordinator(DataUpdateCoordinator[dict[str, WatchState]]):
                 bluetooth_name = None
                 rssi = None
             detected = age_seconds is not None and age_seconds <= self.presence_timeout
-            new_states[watch.private_entry_id] = WatchState(
+            new_states[watch.watch_id] = WatchState(
                 detected=detected, last_seen=last_seen, age_seconds=age_seconds,
                 rssi=rssi, source=source, scanner_name=scanner_name,
                 address=address, bluetooth_name=bluetooth_name,
