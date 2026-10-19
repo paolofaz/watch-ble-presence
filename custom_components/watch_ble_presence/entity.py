@@ -22,14 +22,14 @@ class WatchBleEntity(CoordinatorEntity[WatchBleCoordinator]):
     ) -> None:
         super().__init__(coordinator)
         self.watch = watch
-        self._attr_unique_id = f"{watch.private_entry_id}_{key}"
+        self._attr_unique_id = f"{watch.watch_id}_{key}"
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, watch.private_entry_id)},
+            identifiers={(DOMAIN, watch.watch_id)},
             name=watch.name,
-            model="Private BLE presence",
+            model="BLE presence",
         )
 
     @property
     def watch_state(self) -> WatchState:
         """Return the latest state for this watch."""
-        return self.coordinator.data[self.watch.private_entry_id]
+        return self.coordinator.data[self.watch.watch_id]
