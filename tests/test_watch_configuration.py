@@ -1,4 +1,4 @@
-"""Tests for reusing a Watch's existing entity identity when adding its IRK."""
+"""Tests for normal Watch configuration and stored ID preservation."""
 
 import importlib.util
 from pathlib import Path
@@ -52,9 +52,6 @@ def load_config_flow():
     core = types.ModuleType("homeassistant.core")
     core.callback = lambda fn: fn
     helpers = types.ModuleType("homeassistant.helpers")
-    registry = types.ModuleType("homeassistant.helpers.entity_registry")
-    registry.async_get = lambda hass: hass.registry
-    helpers.entity_registry = registry
 
     modules = {
         prefix: package,
@@ -65,7 +62,6 @@ def load_config_flow():
         "homeassistant.config_entries": ce,
         "homeassistant.core": core,
         "homeassistant.helpers": helpers,
-        "homeassistant.helpers.entity_registry": registry,
     }
     with patch.dict(sys.modules, modules):
         spec = importlib.util.spec_from_file_location(prefix + ".config_flow", COMPONENT / "config_flow.py")
