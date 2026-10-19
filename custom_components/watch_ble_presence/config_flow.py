@@ -45,7 +45,10 @@ def legacy_watch_ids(hass, entry: ConfigEntry) -> dict[str, str]:
         if entity.config_entry_id != entry.entry_id or not entity.unique_id.endswith("_detected"):
             continue
         identifier = entity.unique_id.removesuffix("_detected")
-        ids[identifier] = entity.name or entity.entity_id
+        # Show the exact existing entity_id so similarly named Watches cannot be
+        # confused during migration. This reads only OUR entity registry data.
+        label = entity.name or entity.original_name or "Watch BLE Presence"
+        ids[identifier] = f"{label} — {entity.entity_id}"
     return ids
 
 
@@ -62,6 +65,8 @@ class WatchBlePresenceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             irk = parse_irk(user_input[CONF_IRK])
             if irk is None:
                 errors[CONF_IRK] = "irk_not_valid"
+            elif not user_input[CONF_NAME].strip():
+                errors[CONF_NAME] = "name_required"
             else:
                 return self.async_create_entry(
                     title="Watch BLE Presence",
