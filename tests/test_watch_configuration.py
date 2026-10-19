@@ -42,6 +42,8 @@ def load_config_flow():
     class OptionsFlowWithReload:
         def async_create_entry(self, *, data):
             return {"type": "create_entry", "data": data}
+        def async_show_form(self, *, step_id, data_schema, errors):
+            return {"type": "form", "step_id": step_id, "errors": errors}
     ce.ConfigFlow = ConfigFlow
     ce.ConfigEntry = object
     ce.ConfigFlowResult = dict
@@ -85,40 +87,75 @@ class FakeConfigEntries:
 
 
 class WatchConfigurationTests(unittest.IsolatedAsyncioTestCase):
-    async def test_select_old_watch_id_preserves_entity_unique_id(self):
+    async def test_add_watch_keeps_existing_four_ids(self):
         flow_module = load_config_flow()
-        current_entry_id = "our-integration-entry"
-        old_watch_id = "stable-watch-identifier"
-        old_entity = types.SimpleNamespace(
-            config_entry_id=current_entry_id,
-            unique_id=old_watch_id + "_detected",
-            name="Kitchen Watch",
-            entity_id="binary_sensor.kitchen_watch_ble_detected",
+        old_ids = ["stable-1", "stable-2", "stable-3", "stable-4"]
+        stored = [
+            {"id": key, "name": f"Watch {i}", "irk": bytes([i] * 16).hex()}
+            for i, key in enumerate(old_ids, 1)
+        ]
+        hass = types.SimpleNamespace(config_entries=FakeConfigEntries())
+        entry = types.SimpleNamespace(
+            entry_id="our-entry", data={"watches": stored},
+            options={"update_interval": 15},
         )
-        other_integration = types.SimpleNamespace(
-            config_entry_id="private-ble-other-integration",
-            unique_id="other-secret-watch_detected",
-            name="Not ours",
-            entity_id="binary_sensor.other",
-        )
-        hass = types.SimpleNamespace(
-            registry=types.SimpleNamespace(entities={"own": old_entity, "other": other_integration}),
-            config_entries=FakeConfigEntries(),
-        )
-        entry = types.SimpleNamespace(entry_id=current_entry_id, data={"watches": []}, options={})
-        self.assertEqual(list(flow_module.legacy_watch_ids(hass, entry)), [old_watch_id])
-
         flow = flow_module.WatchBlePresenceOptionsFlow()
         flow.hass = hass
         flow.config_entry = entry
-        key = bytes(range(16)).hex()
-        result = await flow.async_step_add_watch({
-            "name": "Watch Paolo", "irk": key, "existing_watch": old_watch_id,
-        })
+
+        added_irk = bytes([5] * 16).hex()
+        result = await flow.async_step_add_watch({"name": "New Watch", "irk": added_irk})
         self.assertEqual(result["type"], "create_entry")
-        self.assertEqual(entry.data["watches"][0]["id"], old_watch_id)
-        self.assertEqual(entry.data["watches"][0]["irk"], key)
-        self.assertEqual(hass.config_entries.reloads, [current_entry_id])
+        self.assertEqual([w["id"] for w in entry.data["watches"][:4]], old_ids)
+        self.assertEqual(
+            [w["irk"] for w in entry.data["watches"][:4]],
+            [w["irk"] for w in stored],
+        )
+        self.assertEqual(entry.data["watches"][4]["name"], "New Watch")
+        self.assertEqual(entry.data["watches"][4]["irk"], added_irk)
+        self.assertNotIn(entry.data["watches"][4]["id"], old_ids)
+        self.assertEqual(entry.options, {"update_interval": 15})
+        self.assertEqual(hass.config_entries.reloads, ["our-entry"])
+
+    async def test_duplicate_irk_is_rejected(self):
+        flow_module = load_config_flow()
+        key = bytes(range(16)).hex()
+        entry = types.SimpleNamespace(
+            entry_id="entry",
+            data={"watches": [{"id": "original", "name": "Watch", "irk": key}]},
+            options={},
+        )
+        flow = flow_module.WatchBlePresenceOptionsFlow()
+        flow.config_entry = entry
+        flow.hass = types.SimpleNamespace(config_entries=FakeConfigEntries())
+        result = await flow.async_step_add_watch({"name": "Duplicate", "irk": key})
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(result["errors"], {"irk": "irk_already_configured"})
+        self.assertEqual([w["id"] for w in entry.data["watches"]], ["original"])
+
+    async def test_remove_keeps_other_id(self):
+        flow_module = load_config_flow()
+        key1 = bytes([1] * 16).hex()
+        key2 = bytes([2] * 16).hex()
+        entry = types.SimpleNamespace(
+            entry_id="entry",
+            data={"watches": [
+                {"id": "keep", "name": "Watch 1", "irk": key1},
+                {"id": "remove", "name": "Watch 2", "irk": key2},
+            ]},
+            options={},
+        )
+        hass = types.SimpleNamespace(config_entries=FakeConfigEntries())
+        flow = flow_module.WatchBlePresenceOptionsFlow()
+        flow.hass = hass
+        flow.config_entry = entry
+        result = await flow.async_step_remove_watch({"watch": "remove"})
+        self.assertEqual(result["type"], "create_entry")
+        self.assertEqual(
+            entry.data["watches"],
+            [{"id": "keep", "name": "Watch 1", "irk": key1}],
+        )
+        self.assertEqual(hass.config_entries.reloads, ["entry"])
 
 
 if __name__ == "__main__":
