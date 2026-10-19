@@ -108,6 +108,7 @@ class WatchBlePresenceOptionsFlow(OptionsFlowWithReload):
                 watch_id = chosen if chosen in old_ids else uuid4().hex
                 watches.append({"id": watch_id, "name": user_input[CONF_NAME].strip(), "irk": irk.hex()})
                 self.hass.config_entries.async_update_entry(self.config_entry, data={**self.config_entry.data, CONF_WATCHES: watches})
+                await self.hass.config_entries.async_reload(self.config_entry.entry_id)
                 return self.async_create_entry(data=dict(self.config_entry.options))
         return self.async_show_form(step_id="add_watch", data_schema=watch_schema(old_ids), errors=errors)
 
@@ -118,5 +119,6 @@ class WatchBlePresenceOptionsFlow(OptionsFlowWithReload):
         if user_input is not None:
             remaining = [watch for watch in watches if watch["id"] != user_input["watch"]]
             self.hass.config_entries.async_update_entry(self.config_entry, data={**self.config_entry.data, CONF_WATCHES: remaining})
+            await self.hass.config_entries.async_reload(self.config_entry.entry_id)
             return self.async_create_entry(data=dict(self.config_entry.options))
         return self.async_show_form(step_id="remove_watch", data_schema=vol.Schema({vol.Required("watch"): vol.In({w["id"]: w["name"] for w in watches})}))
