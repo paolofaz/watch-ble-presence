@@ -1,119 +1,53 @@
 # Watch BLE Presence
 
-Repository: https://github.com/paolofaz/watch-ble-presence
+A Home Assistant custom integration for monitoring Apple Watch BLE presence using your own **Identity Resolving Keys (IRKs)**.
 
-A Home Assistant custom integration that exposes fast, deterministic BLE presence for Apple Watch devices already configured with Home Assistant's **Private BLE Device** integration.
-
-Instead of relying on the comparatively long `not_home` timeout of the official device tracker, Watch BLE Presence periodically reads Home Assistant's existing in-memory Bluetooth cache and calculates when the latest advertisement matching each IRK was actually received.
-
-It does **not** trigger additional Bluetooth scans and does **not** communicate with the Watch.
+Independent of the official **Private BLE Device** integration. Supports multiple watches, rotating Bluetooth addresses, and Home Assistant Bluetooth proxies.
 
 ## Features
 
-- One Home Assistant device for every configured Private BLE Device IRK.
-- BLE presence binary sensor with configurable timeout.
-- Last BLE detection timestamp.
-- Age of the latest detection in seconds.
-- RSSI diagnostic sensor.
-- Bluetooth scanner/source diagnostic sensor.
-- Current rotating BLE address diagnostic sensor.
-- Bluetooth-advertised name diagnostic sensor.
-- Configurable update interval and presence timeout from the Home Assistant UI.
-- Uses all Bluetooth scanners already managed by Home Assistant, including compatible Bluetooth proxies.
+- Presence binary sensor with configurable timeout
+- Last BLE detection timestamp and detection age
+- RSSI, source scanner/proxy, current rotating address and Bluetooth name
+- Multiple watches with individual IRKs
+- Existing Home Assistant Bluetooth advertisement cache; no connections to the Watch
 
 ## Requirements
 
-- Home Assistant 2026.3 or newer.
-- The built-in **Private BLE Device** integration configured with at least one IRK.
-- Working Bluetooth scanners/proxies visible to Home Assistant.
+- Home Assistant 2026.3 or newer
+- Bluetooth scanner or compatible ESPHome Bluetooth proxy
+- Each watch's IRK (16 bytes; hex or supported base64 format)
 
-The official Private BLE Device integration remains required because Watch BLE Presence uses its IRK configuration and address resolution logic. You can choose not to use its `device_tracker` entities in your automations.
+## Installation
 
-## Installation with HACS
+In HACS, add `https://github.com/paolofaz/watch-ble-presence` as a custom **Integration** repository. Install, restart Home Assistant, then add **Watch BLE Presence** under Settings → Devices & services.
 
-Until/if the repository is added to the default HACS catalog:
-
-1. Open HACS.
-2. Open **Custom repositories**.
-3. Add `https://github.com/paolofaz/watch-ble-presence` as the repository URL.
-4. Select **Integration** as the category.
-5. Install **Watch BLE Presence**.
-6. Restart Home Assistant.
-7. Go to **Settings → Devices & services → Add integration**.
-8. Search for **Watch BLE Presence** and add it.
-
-## Manual installation
-
-Copy:
-
-```text
-custom_components/watch_ble_presence/
-```
-
-into your Home Assistant configuration directory under:
-
-```text
-/config/custom_components/watch_ble_presence/
-```
-
-Restart Home Assistant and add **Watch BLE Presence** from **Settings → Devices & services**.
+Alternatively, copy `custom_components/watch_ble_presence/` into `/config/custom_components/`, restart, and add the integration.
 
 ## Configuration
 
-The integration has two options:
+Enter the first watch name and IRK in the setup flow. To add more watches, open **Watch BLE Presence → Configure → Add or migrate a Watch**.
 
-- **Update interval**: how often the integration samples Home Assistant's Bluetooth cache. Default: `60` seconds.
-- **BLE presence timeout**: maximum age of the latest received advertisement before the presence binary sensor turns off. Default: `300` seconds.
+The **Presence settings** menu controls polling (10–300 seconds, default 60) and presence timeout (60–3600 seconds, default 300). Each Watch has seven entities: BLE detected, last seen, age, RSSI, scanner, address, Bluetooth name.
 
-For example, with an update interval of 60 seconds and a presence timeout of 180 seconds, the binary sensor normally turns off roughly 3–4 minutes after the last received advertisement.
+## Upgrading from the original release
 
-## Entities
+**This development refactor is not yet validated on a real installation. Do not install it on the production Home Assistant system before testing.**
 
-Each tracked watch/device gets:
+Previous Watch BLE Presence versions did not store IRKs in their own configuration. On upgrade, you need to enter the IRK for every Watch again. The new integration does **not** read IRKs from Private BLE Device.
 
-| Entity | Purpose |
-| --- | --- |
-| BLE detected | Main presence binary sensor |
-| Last BLE detection | Timestamp of the most recent BLE advertisement |
-| Last detection age | Seconds since the most recent advertisement |
-| RSSI | Signal strength of the latest advertisement |
-| Bluetooth scanner | Scanner/proxy that supplied the latest advertisement |
-| BLE address | Current rotating/private BLE address |
-| Bluetooth name | Name contained in the BLE advertisement, when available |
+Take a Home Assistant backup first and keep Private BLE Device running during evaluation. For each Watch, use **Configure → Add or migrate a Watch** and select the corresponding **existing Watch BLE Presence entity** to preserve its unique ID and existing automation references. Repeat for all four Watches. See [MIGRATION.md](MIGRATION.md) for further details.
 
-The RSSI, scanner, address and Bluetooth-name entities are diagnostic entities.
+After testing detection, MAC rotation, timeout, and scanner behavior with your own equipment, Private BLE Device may be removed. Home Assistant's Bluetooth system and proxies are separate integrations.
 
-## How it works
+## Development
 
-Home Assistant's Bluetooth stack continuously receives advertisements through its configured local adapter and Bluetooth proxies. Identical advertisements may be deduplicated before callbacks reach integrations, but Home Assistant still maintains the latest service information in its Bluetooth cache.
+GitHub Actions runs HACS and Hassfest checks plus unit tests using `python -m unittest discover -s tests -v`. Automated checks **cannot** establish real-world BLE presence reliability. Verify performance with physical Watches before publishing a release.
 
-Watch BLE Presence reads that existing cache at the configured interval, resolves private addresses using the IRKs already managed by **Private BLE Device**, and derives the actual last-seen age from the cached advertisement timestamp.
+## Security
 
-This means the integration is sampling existing Home Assistant state, not actively polling the Watch over Bluetooth.
+IRKs are secret key material and are stored only in Watch BLE Presence's Home Assistant config entry. Do not post IRKs to issues or logs. For critical security automation, combine BLE presence with other signals.
 
-## Automation guidance
+## Support and license
 
-For security-sensitive presence logic, BLE presence is best treated as one signal rather than the sole proof that a person has left. Combining the BLE binary sensor with physical events such as a door, gate, lock or alarm state can substantially reduce false transitions.
-
-## Compatibility note
-
-This integration currently imports internal coordinator functionality from Home Assistant's built-in `private_ble_device` integration. That API is not guaranteed to remain stable across future Home Assistant releases. A Home Assistant update may therefore require a corresponding Watch BLE Presence update.
-
-
-# 🍺 Support the Project
-
-If you found this project useful and want to support my work, you can offer me a beer:
-
-[![Buy Me a Beer](https://img.shields.io/badge/Buy%20Me%20a%20Beer-0070ba?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/PaoloFazari)
-
-
-## Contributions
-Contributions are welcome
-
-## Trademarks
-
-Apple and Apple Watch are trademarks of Apple Inc. This project is independent and is not affiliated with or endorsed by Apple Inc. or Home Assistant.
-
-## License
-
-MIT
+[Support the project](https://paypal.me/PaoloFazari). MIT license. Not affiliated with Apple Inc. or Home Assistant.
