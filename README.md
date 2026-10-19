@@ -1,53 +1,57 @@
 # Watch BLE Presence
 
-A Home Assistant custom integration for monitoring Apple Watch BLE presence using your own **Identity Resolving Keys (IRKs)**.
+A Home Assistant custom integration for monitoring Apple Watch presence using each Watch's own **Identity Resolving Key (IRK)**. No Private BLE Device integration required.
 
-Independent of the official **Private BLE Device** integration. Supports multiple watches, rotating Bluetooth addresses, and Home Assistant Bluetooth proxies.
+## How it works
+
+Watch BLE Presence **only reads the Bluetooth advertisement cache** maintained by Home Assistant. It does not initiate Bluetooth scans, register active-scan listeners, connect to the Watch or change ESPHome proxy behavior. The actual scanning modes of Bluetooth adapters and proxies are controlled by their respective integrations.
+
+The integration resolves rotating BLE addresses with `bluetooth-data-tools` and exposes the newest cached advertisement for each configured IRK.
 
 ## Features
 
-- Presence binary sensor with configurable timeout
-- Last BLE detection timestamp and detection age
-- RSSI, source scanner/proxy, current rotating address and Bluetooth name
-- Multiple watches with individual IRKs
-- Existing Home Assistant Bluetooth advertisement cache; no connections to the Watch
+Each Watch has seven entities, preserving the same names and entity keys as Watch BLE Presence v1.0:
+
+- BLE detected (binary sensor)
+- Last BLE detection (timestamp)
+- Last detection age (seconds)
+- RSSI (dBm)
+- Bluetooth scanner/proxy
+- BLE address
+- Bluetooth name
+
+Presence timeout and polling interval are configurable. Defaults are 300 seconds for presence timeout and 60 seconds for polling; polling can be set as low as 10 seconds.
 
 ## Requirements
 
 - Home Assistant 2026.3 or newer
-- Bluetooth scanner or compatible ESPHome Bluetooth proxy
-- Each watch's IRK (16 bytes; hex or supported base64 format)
+- Working Home Assistant Bluetooth integration and a Bluetooth adapter or ESPHome Bluetooth proxy
+- One valid 16-byte IRK per Apple Watch, entered in Home Assistant as 32 hexadecimal digits or the supported base64 encoding
 
 ## Installation
 
-In HACS, add `https://github.com/paolofaz/watch-ble-presence` as a custom **Integration** repository. Install, restart Home Assistant, then add **Watch BLE Presence** under Settings → Devices & services.
+Install Watch BLE Presence as a HACS custom repository integration, or copy `custom_components/watch_ble_presence/` into `/config/custom_components/watch_ble_presence/`. Restart Home Assistant and add **Watch BLE Presence** in Settings → Devices & services.
 
-Alternatively, copy `custom_components/watch_ble_presence/` into `/config/custom_components/`, restart, and add the integration.
+Enter the first Watch's name and IRK during setup. Use **Configure → Add a Watch** for additional watches, or **Configure → Remove a Watch** to remove a device. **Presence settings** changes the timeout and update interval.
 
-## Configuration
+**Important:** If you are already using the independent v1.1 beta with configured Watches, upgrade the integration **in place**, without removing its config entry. All existing Watch IDs, IRKs, entity IDs and options are retained. Home Assistant keeps the internal entry schema at version 2; the application release is v1.2.
 
-Enter the first watch name and IRK in the setup flow. To add more watches, open **Watch BLE Presence → Configure → Add or migrate a Watch**.
+This streamlined v1.2 line **does not contain the old Private BLE Device migration workflow**. Starting from the original pre-IRK v1.0 requires setting up Watch BLE Presence afresh; the former migration UI is not available.
 
-The **Presence settings** menu controls polling (10–300 seconds, default 60) and presence timeout (60–3600 seconds, default 300). Each Watch has seven entities: BLE detected, last seen, age, RSSI, scanner, address, Bluetooth name.
+## Development and testing
 
-## Upgrading from the original release
+The `test` branch tracks the v1.2 beta. GitHub Actions runs HACS validation, Hassfest and unit tests using:
 
-**This development refactor is not yet validated on a real installation. Do not install it on the production Home Assistant system before testing.**
+```sh
+python -m unittest discover -s tests -v
+```
 
-Previous Watch BLE Presence versions did not store IRKs in their own configuration. On upgrade, you need to enter the IRK for every Watch again. The new integration does **not** read IRKs from Private BLE Device.
+Automated checks do not guarantee Bluetooth presence behavior in every environment. Evaluate live advertisements, rotating addresses, scanner names and departure/arrival transitions before deploying safety-critical automations.
 
-Take a Home Assistant backup first and keep Private BLE Device running during evaluation. For each Watch, use **Configure → Add or migrate a Watch** and select the corresponding **existing Watch BLE Presence entity** to preserve its unique ID and existing automation references. Repeat for all four Watches. See [MIGRATION.md](MIGRATION.md) for further details.
+## Privacy and security
 
-After testing detection, MAC rotation, timeout, and scanner behavior with your own equipment, Private BLE Device may be removed. Home Assistant's Bluetooth system and proxies are separate integrations.
-
-## Development
-
-GitHub Actions runs HACS and Hassfest checks plus unit tests using `python -m unittest discover -s tests -v`. Automated checks **cannot** establish real-world BLE presence reliability. Verify performance with physical Watches before publishing a release.
-
-## Security
-
-IRKs are secret key material and are stored only in Watch BLE Presence's Home Assistant config entry. Do not post IRKs to issues or logs. For critical security automation, combine BLE presence with other signals.
+IRKs are secret identity keys stored in the integration's own Home Assistant config entry. Do not share them in GitHub issues, screenshots or support chats. Avoid relying on BLE presence alone for security-critical actions.
 
 ## Support and license
 
-[Support the project](https://paypal.me/PaoloFazari). MIT license. Not affiliated with Apple Inc. or Home Assistant.
+[Support the project](https://paypal.me/PaoloFazari). MIT License. This project is not affiliated with Apple Inc. or Home Assistant.
