@@ -40,5 +40,17 @@ class WatchBleDetectedBinarySensor(WatchBleEntity, BinarySensorEntity):
         return self.watch_state.detected
 
     @property
+    def extra_state_attributes(self) -> dict[str, str | None]:
+        """Expose the last BLE detection timestamp after presence turns off."""
+        state = self.watch_state
+        return {
+            "last_seen_before_off": (
+                state.last_seen.isoformat()
+                if not state.detected and state.last_seen is not None
+                else None
+            )
+        }
+
+    @property
     def icon(self) -> str:
         return "mdi:bluetooth-connect" if self.is_on else "mdi:bluetooth-off"
