@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.0.1 — Fix BLE presence timestamp attribute
+
+Bugfix release restoring compatibility with Home Assistant presence automations.
+
+Added the missing last_seen_before_off attribute to Watch BLE presence binary sensors.
+
+The attribute exposes the timestamp of the last BLE advertisement when a Watch is no longer detected.
+
+Fixed automations that rely on this timestamp to correlate Watch departures with physical events such as door, gate and lock activity.
+
+Added regression tests covering detected, undetected and never-seen Watch states.
+
+No changes to Bluetooth scanning, IRK resolution, presence detection logic or existing entity IDs.
+
+No configuration changes or migration required.
+
 ## 2.0.0 — Independent Apple Watch BLE presence
 
 Major release removing runtime dependence on `private_ble_device` and all nonpublic Home Assistant APIs.
