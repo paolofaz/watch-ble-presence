@@ -34,19 +34,25 @@ Install Watch BLE Presence as a HACS custom repository integration, or copy `cus
 
 Enter the first Watch's name and IRK during setup. Use **Configure → Add a Watch** for additional watches, or **Configure → Remove a Watch** to remove a device. **Presence settings** changes the timeout and update interval.
 
-**Important:** If you are already using the independent v1.1 beta with configured Watches, upgrade the integration **in place**, without removing its config entry. All existing Watch IDs, IRKs, entity IDs and options are retained. Home Assistant keeps the internal entry schema at version 2; the application release is v1.2.
+**Important:** If you are already using the independent v1.1 or v1.2 beta with configured Watches, upgrade the integration **in place**, without removing its config entry. All existing Watch IDs, IRKs, entity IDs and options are retained. Home Assistant's internal config-entry schema remains version 2; the integration release is v2.0.0.
 
-This streamlined v1.2 line **does not contain the old Private BLE Device migration workflow**. Starting from the original pre-IRK v1.0 requires setting up Watch BLE Presence afresh; the former migration UI is not available.
+**Breaking change in v2.0:** The old Private BLE Device migration wizard was removed. Direct upgrades from the original v1.0 entry (which did not store IRKs) are unsupported; back up your configuration, remove the old v1.0 integration entry and set up v2.0 with your own IRKs. Reusing the old Watch name alone does **not** guarantee the same entity ID. Existing independent v1.1/v1.2-beta entries keep their configured Watch IDs and entity IDs.
 
 ## Development and testing
 
-The `test` branch tracks the v1.2 beta. GitHub Actions runs HACS validation, Hassfest and unit tests using:
+The `main` branch tracks stable releases; `test` is used for development and evaluation; `legacy` preserves the original code. GitHub Actions runs HACS validation, Hassfest and unit tests using:
 
 ```sh
 python -m unittest discover -s tests -v
 ```
 
 Automated checks do not guarantee Bluetooth presence behavior in every environment. Evaluate live advertisements, rotating addresses, scanner names and departure/arrival transitions before deploying safety-critical automations.
+
+## Integration icon in HACS
+
+Home Assistant 2026.3+ supports locally bundled brand assets. Watch BLE Presence includes `brand/icon.png`, `brand/logo.png`, high-resolution and dark-mode variants in its integration folder. They show correctly in Settings → Devices & services.
+
+Some HACS frontends still display **"icon not available"** for custom integrations because they fetch an older public icon CDN instead of Home Assistant's local brand endpoint. This is a [known HACS frontend issue](https://github.com/hacs/integration/issues/5402), not a missing icon file in this repository. It does not affect the integration or BLE detection.
 
 ## Privacy and security
 
