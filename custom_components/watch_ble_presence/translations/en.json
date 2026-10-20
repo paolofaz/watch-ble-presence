@@ -3,25 +3,61 @@
   "config": {
     "step": {
       "user": {
-        "title": "Watch BLE Presence",
-        "description": "Create BLE presence devices from the Private BLE Device entries already configured in Home Assistant."
+        "title": "Add an Apple Watch",
+        "description": "Enter a name and your watch's IRK. The key is stored only by Watch BLE Presence.",
+        "data": {
+          "name": "Watch name",
+          "irk": "IRK (hex or base64)"
+        }
       }
     },
+    "error": {
+      "irk_not_valid": "Invalid IRK. Enter 32 hex digits or a supported base64 IRK.",
+      "name_required": "Enter a Watch name."
+    },
     "abort": {
-      "single_instance_allowed": "Only one Watch BLE Presence instance can be configured.",
-      "no_private_ble_devices": "No Private BLE Device entries with an IRK were found."
+      "single_instance_allowed": "Only one Watch BLE Presence instance can be configured."
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Watch BLE Presence settings",
-        "description": "The integration only reads Home Assistant's Bluetooth cache; it does not start additional radio scans.",
+        "title": "Manage Watch BLE Presence",
+        "menu_options": {
+          "settings": "Presence settings",
+          "add_watch": "Add a Watch",
+          "remove_watch": "Remove a Watch"
+        }
+      },
+      "settings": {
+        "title": "Presence settings",
         "data": {
           "update_interval": "Update interval (seconds)",
           "presence_timeout": "BLE presence timeout (seconds)"
         }
+      },
+      "add_watch": {
+        "title": "Add a Watch",
+        "description": "Enter the new Watch's name and IRK.",
+        "data": {
+          "name": "Watch name",
+          "irk": "IRK (hex or base64)"
+        }
+      },
+      "remove_watch": {
+        "title": "Remove a Watch",
+        "data": {
+          "watch": "Watch"
+        }
       }
+    },
+    "error": {
+      "irk_not_valid": "Invalid IRK.",
+      "irk_already_configured": "This watch is already configured.",
+      "name_required": "Enter a watch name."
+    },
+    "abort": {
+      "no_watches": "There are no watches to remove."
     }
   },
   "entity": {

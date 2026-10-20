@@ -3,25 +3,61 @@
   "config": {
     "step": {
       "user": {
-        "title": "Watch BLE Presence",
-        "description": "Crea dispositivi di presenza BLE usando le configurazioni Private BLE Device già presenti in Home Assistant."
+        "title": "Aggiungi Apple Watch",
+        "description": "Inserisci il nome e la chiave IRK. La chiave verrà conservata esclusivamente da Watch BLE Presence.",
+        "data": {
+          "name": "Nome Watch",
+          "irk": "IRK (hex o base64)"
+        }
       }
     },
+    "error": {
+      "irk_not_valid": "IRK non valida. Inserisci 32 cifre esadecimali oppure una IRK base64 supportata.",
+      "name_required": "Inserisci il nome del Watch."
+    },
     "abort": {
-      "single_instance_allowed": "È possibile configurare una sola istanza di Watch BLE Presence.",
-      "no_private_ble_devices": "Non sono state trovate configurazioni Private BLE Device con un IRK."
+      "single_instance_allowed": "È possibile configurare una sola istanza Watch BLE Presence."
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Impostazioni Watch BLE Presence",
-        "description": "L'integrazione legge soltanto la cache Bluetooth di Home Assistant: non avvia scansioni radio aggiuntive.",
+        "title": "Gestisci Watch BLE Presence",
+        "menu_options": {
+          "settings": "Impostazioni presenza",
+          "add_watch": "Aggiungi un Watch",
+          "remove_watch": "Rimuovi un Watch"
+        }
+      },
+      "settings": {
+        "title": "Impostazioni presenza",
         "data": {
-          "update_interval": "Intervallo di aggiornamento (secondi)",
+          "update_interval": "Intervallo aggiornamento (secondi)",
           "presence_timeout": "Timeout presenza BLE (secondi)"
         }
+      },
+      "add_watch": {
+        "title": "Aggiungi un Watch",
+        "description": "Inserisci il nome e la IRK del nuovo Watch.",
+        "data": {
+          "name": "Nome Watch",
+          "irk": "IRK (hex o base64)"
+        }
+      },
+      "remove_watch": {
+        "title": "Rimuovi Watch",
+        "data": {
+          "watch": "Watch"
+        }
       }
+    },
+    "error": {
+      "irk_not_valid": "IRK non valida.",
+      "irk_already_configured": "Questo Watch è già configurato.",
+      "name_required": "Inserisci un nome per il Watch."
+    },
+    "abort": {
+      "no_watches": "Non ci sono Watch da rimuovere."
     }
   },
   "entity": {
