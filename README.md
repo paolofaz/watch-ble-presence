@@ -58,6 +58,11 @@ Some HACS frontends still display **"icon not available"** for custom integratio
 
 IRKs are secret identity keys stored in the integration's own Home Assistant config entry. Do not share them in GitHub issues, screenshots or support chats. Avoid relying on BLE presence alone for security-critical actions.
 
+# 🍺 Support the Project
+
+If you found this project useful and want to support my work, you can offer me a beer:
+
+[![Buy Me a Beer](https://img.shields.io/badge/Buy%20Me%20a%20Beer-0070ba?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/PaoloFazari)
 ## Support and license
 
 [Support the project](https://paypal.me/PaoloFazari). MIT License. This project is not affiliated with Apple Inc. or Home Assistant.
